@@ -79,7 +79,7 @@ def query_page(tableName: str, columns: str, pageNum: int, pageSize: int):
     #    return None
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    sql = f"SELECT {columns} FROM {tableName} ORDER BY ID ASC LIMIT {pageSize} OFFSET {pageNum - 1}"
+    sql = f"SELECT {columns} FROM {tableName} ORDER BY ID ASC LIMIT {pageSize} OFFSET {pageSize * (pageNum - 1)}"
     cur.execute(sql)
     results = cur.fetchall()
     conn.close()
@@ -99,3 +99,29 @@ def get_column_names(tableName: str) -> list:
             column_names.append(column[1])
     return column_names
 
+
+# delete data
+def delete_data(tableName: str, column: str, values: list):
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute(f"DELETE FROM {tableName} WHERE {column} IN ('{','.join(values)}')")
+    conn.commit()
+    conn.close()
+
+
+# update single value
+def update_data(tableName: str, index_column: str, index_value, column: str, value):
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE {tableName} SET {column} = '{value}' WHERE {index_column} = '{index_value}'")
+    conn.commit()
+    conn.close()
+
+
+def get_total_pages(tableName: str) -> int:
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute(f"SELECT COUNT(*) FROM {tableName}")
+    pages = cur.fetchone()[0]
+    conn.close()
+    return pages / DEFAULT_PAGE_SIZE
