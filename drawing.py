@@ -68,14 +68,14 @@ class main_frame ( wx.Frame ):
 
 		data_prm_layout.Add( ( 10, 0), 0, wx.EXPAND, 5 )
 
+		table_select_comboChoices = []
+		self.table_select_combo = wx.ComboBox( self.data_panel, wx.ID_ANY, u"请选择表格", wx.DefaultPosition, wx.Size( 150,-1 ), table_select_comboChoices, wx.CB_DROPDOWN )
+		data_prm_layout.Add( self.table_select_combo, 0, wx.ALL, 5 )
+
 		self.table_check_btn = wx.Button( self.data_panel, wx.ID_ANY, u"查看", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.table_check_btn.SetMinSize( wx.Size( 60,-1 ) )
 
 		data_prm_layout.Add( self.table_check_btn, 0, wx.ALL, 5 )
-
-		table_select_comboChoices = []
-		self.table_select_combo = wx.ComboBox( self.data_panel, wx.ID_ANY, u"Combo!", wx.DefaultPosition, wx.DefaultSize, table_select_comboChoices, 0 )
-		data_prm_layout.Add( self.table_select_combo, 0, wx.ALL, 5 )
 
 		self.import_tb_btn = wx.Button( self.data_panel, wx.ID_ANY, u"导入数据表", wx.DefaultPosition, wx.DefaultSize, 0 )
 		data_prm_layout.Add( self.import_tb_btn, 0, wx.ALL, 5 )
@@ -99,7 +99,7 @@ class main_frame ( wx.Frame ):
 		self.table_grid = wx.grid.Grid( self.data_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		# Grid
-		self.table_grid.CreateGrid( 5, 5 )
+		self.table_grid.CreateGrid( 0, 0 )
 		self.table_grid.EnableEditing( True )
 		self.table_grid.EnableGridLines( True )
 		self.table_grid.EnableDragGridSize( False )
@@ -152,6 +152,8 @@ class main_frame ( wx.Frame ):
 		self.main_btn.Bind( wx.EVT_BUTTON, self.show_main_panel )
 		self.data_btn.Bind( wx.EVT_BUTTON, self.show_data_panel )
 		self.log_btn.Bind( wx.EVT_BUTTON, self.show_log_panel )
+		self.table_select_combo.Bind( wx.EVT_COMBOBOX, self.choose_table )
+		self.table_check_btn.Bind( wx.EVT_BUTTON, self.load_table_data )
 		self.import_tb_btn.Bind( wx.EVT_BUTTON, self.show_import_dialog )
 
 	def __del__( self ):
@@ -168,6 +170,12 @@ class main_frame ( wx.Frame ):
 	def show_log_panel( self, event ):
 		event.Skip()
 
+	def choose_table( self, event ):
+		event.Skip()
+
+	def load_table_data( self, event ):
+		event.Skip()
+
 	def show_import_dialog( self, event ):
 		event.Skip()
 
@@ -182,6 +190,7 @@ class import_dialog ( wx.Dialog ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"导入数据", pos = wx.DefaultPosition, size = wx.Size( 309,146 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.Size( -1,-1 ), wx.DefaultSize )
+		self.Hide()
 
 		impt_main_layout = wx.BoxSizer( wx.VERTICAL )
 

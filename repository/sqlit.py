@@ -2,6 +2,7 @@ import sqlite3
 
 DATABASE = 'lottery.db'
 KEY_SQL = "ID INTEGER PRIMARY KEY AUTOINCREMENT"
+DEFAULT_PAGE_SIZE = 50
 
 
 # initialize the database, if lottery.db has been created
@@ -48,3 +49,53 @@ def insert_data(tableName: str, columns: list, values):
         conn.close()
     except Exception as e:
         raise Exception(f"表格{tableName}数据导入失败: {e}")
+
+
+# retrieve all table names
+def get_table_names(tableName: str = None) -> list:
+    tables = []
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        sql = "SELECT name FROM sqlite_master WHERE type='table'"
+        if tableName is not None:
+            sql += f" AND name LIKE '%{tableName}%'"
+        cur.execute(sql)
+        results = cur.fetchall()
+        for result in results:
+            # remove the default table of sqlite
+            if result[0] != 'sqlite_sequence':
+                tables.append(result[0])
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        raise Exception(f"查询表格数据失败: {e}")
+    return tables
+
+
+# query page data from certain table
+def query_page(tableName: str, columns: str, pageNum: int, pageSize: int):
+    # if tableName is None:
+    #    return None
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    sql = f"SELECT {columns} FROM {tableName} ORDER BY ID ASC LIMIT {pageSize} OFFSET {pageNum - 1}"
+    cur.execute(sql)
+    results = cur.fetchall()
+    conn.close()
+    return results
+
+
+# get column names from certain table
+def get_column_names(tableName: str) -> list:
+    column_names = []
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute(f"PRAGMA table_info({tableName})")
+    columns_info = cur.fetchall()
+    conn.close()
+    for column in columns_info:
+        if column[1] != 'ID':
+            column_names.append(column[1])
+    return column_names
+
