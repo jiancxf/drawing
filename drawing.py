@@ -51,7 +51,216 @@ class main_frame ( wx.Frame ):
 		content_layout = wx.BoxSizer( wx.VERTICAL )
 
 		self.main_panel = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		content_layout.Add( self.main_panel, 0, wx.EXPAND |wx.ALL, 5 )
+		mainSizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.title_panel = wx.Panel( self.main_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		title_sizer = wx.FlexGridSizer( 0, 2, 0, 0 )
+		title_sizer.SetFlexibleDirection( wx.BOTH )
+		title_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		self.title_panel.SetSizer( title_sizer )
+		self.title_panel.Layout()
+		title_sizer.Fit( self.title_panel )
+		mainSizer.Add( self.title_panel, 0, wx.EXPAND |wx.ALL, 5 )
+
+		self.selection_panel = wx.Panel( self.main_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		selection_sizer = wx.FlexGridSizer( 0, 4, 0, 0 )
+		selection_sizer.SetFlexibleDirection( wx.BOTH )
+		selection_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		selection_sizer.Add( ( 30, 0), 0, wx.EXPAND, 5 )
+
+		drawing_table_comboChoices = []
+		self.drawing_table_combo = wx.ComboBox( self.selection_panel, wx.ID_ANY, u"选择数据表", wx.DefaultPosition, wx.Size( 200,-1 ), drawing_table_comboChoices, 0 )
+		selection_sizer.Add( self.drawing_table_combo, 0, wx.ALL, 5 )
+
+		self.confirm_draw_table_btn = wx.Button( self.selection_panel, wx.ID_ANY, u"确认", wx.DefaultPosition, wx.DefaultSize, 0 )
+		selection_sizer.Add( self.confirm_draw_table_btn, 0, wx.ALL, 5 )
+
+
+		selection_sizer.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		self.selection_panel.SetSizer( selection_sizer )
+		self.selection_panel.Layout()
+		selection_sizer.Fit( self.selection_panel )
+		mainSizer.Add( self.selection_panel, 0, wx.EXPAND |wx.ALL, 5 )
+
+		self.basic_condition_panel = wx.Panel( self.main_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		basic_condition_sizer = wx.FlexGridSizer( 0, 4, 0, 0 )
+		basic_condition_sizer.SetFlexibleDirection( wx.BOTH )
+		basic_condition_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		basic_condition_sizer.Add( ( 35, 0), 1, wx.EXPAND, 5 )
+
+		self.drawing_num_label = wx.StaticText( self.basic_condition_panel, wx.ID_ANY, u"选择抽取数量: ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.drawing_num_label.Wrap( -1 )
+
+		basic_condition_sizer.Add( self.drawing_num_label, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.drawing_num_ctrl = wx.SpinCtrl( self.basic_condition_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 200,-1 ), wx.SP_ARROW_KEYS, 0, 10, 0 )
+		basic_condition_sizer.Add( self.drawing_num_ctrl, 0, wx.ALL, 5 )
+
+
+		basic_condition_sizer.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		self.basic_condition_panel.SetSizer( basic_condition_sizer )
+		self.basic_condition_panel.Layout()
+		basic_condition_sizer.Fit( self.basic_condition_panel )
+		mainSizer.Add( self.basic_condition_panel, 0, wx.EXPAND |wx.ALL, 5 )
+
+		self.adv_condition_panel = wx.Panel( self.main_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.adv_condition_panel.Hide()
+
+		drawing_sizer = wx.FlexGridSizer( 0, 2, 0, 0 )
+		drawing_sizer.SetFlexibleDirection( wx.BOTH )
+		drawing_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		self.adv_condition_panel.SetSizer( drawing_sizer )
+		self.adv_condition_panel.Layout()
+		drawing_sizer.Fit( self.adv_condition_panel )
+		mainSizer.Add( self.adv_condition_panel, 1, wx.EXPAND |wx.ALL, 5 )
+
+		self.date_view_panel = wx.Panel( self.main_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		date_view_sizer = wx.FlexGridSizer( 0, 5, 0, 0 )
+		date_view_sizer.SetFlexibleDirection( wx.BOTH )
+		date_view_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		date_view_sizer.Add( ( 30, 0), 0, wx.EXPAND, 5 )
+
+		bSizer6 = wx.BoxSizer( wx.VERTICAL )
+
+
+		bSizer6.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.data_view_title = wx.StaticText( self.date_view_panel, wx.ID_ANY, u"基础数据表", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.data_view_title.Wrap( -1 )
+
+		self.data_view_title.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
+
+		bSizer6.Add( self.data_view_title, 1, wx.ALIGN_CENTER, 5 )
+
+		self.base_data_view = wx.grid.Grid( self.date_view_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 480,540 ), 0 )
+
+		# Grid
+		self.base_data_view.CreateGrid( 0, 0 )
+		self.base_data_view.EnableEditing( False )
+		self.base_data_view.EnableGridLines( True )
+		self.base_data_view.EnableDragGridSize( False )
+		self.base_data_view.SetMargins( 0, 0 )
+
+		# Columns
+		self.base_data_view.EnableDragColMove( False )
+		self.base_data_view.EnableDragColSize( True )
+		self.base_data_view.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Rows
+		self.base_data_view.EnableDragRowSize( False )
+		self.base_data_view.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Label Appearance
+
+		# Cell Defaults
+		self.base_data_view.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		bSizer6.Add( self.base_data_view, 0, wx.ALL, 5 )
+
+
+		date_view_sizer.Add( bSizer6, 1, wx.EXPAND, 5 )
+
+		bSizer7 = wx.BoxSizer( wx.VERTICAL )
+
+
+		bSizer7.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.drawing_btn = wx.BitmapButton( self.date_view_panel, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+
+		self.drawing_btn.SetBitmap( wx.Bitmap( u"static/arrow.png", wx.BITMAP_TYPE_ANY ) )
+		self.drawing_btn.Enable( False )
+
+		bSizer7.Add( self.drawing_btn, 0, wx.ALL, 5 )
+
+		self.drawing_btn_label = wx.StaticText( self.date_view_panel, wx.ID_ANY, u"点击开始抽取", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.drawing_btn_label.Wrap( -1 )
+
+		bSizer7.Add( self.drawing_btn_label, 0, wx.ALIGN_CENTER, 5 )
+
+
+		bSizer7.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		date_view_sizer.Add( bSizer7, 1, wx.EXPAND, 5 )
+
+		bSizer8 = wx.BoxSizer( wx.VERTICAL )
+
+		result_btn_sizer = wx.FlexGridSizer( 0, 4, 0, 0 )
+		result_btn_sizer.SetFlexibleDirection( wx.BOTH )
+		result_btn_sizer.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+		self.result_title = wx.StaticText( self.date_view_panel, wx.ID_ANY, u"抽签结果", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.result_title.Wrap( -1 )
+
+		self.result_title.SetFont( wx.Font( 12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "黑体" ) )
+
+		result_btn_sizer.Add( self.result_title, 0, wx.ALIGN_CENTER, 5 )
+
+
+		result_btn_sizer.Add( ( 15, 0), 0, wx.EXPAND, 5 )
+
+		self.export_result_btn = wx.Button( self.date_view_panel, wx.ID_ANY, u"导出结果", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.export_result_btn.Enable( False )
+
+		result_btn_sizer.Add( self.export_result_btn, 0, wx.ALIGN_CENTER, 5 )
+
+		self.restart_btn = wx.Button( self.date_view_panel, wx.ID_ANY, u"[]", wx.DefaultPosition, wx.Size( 20,-1 ), 0 )
+		result_btn_sizer.Add( self.restart_btn, 0, wx.ALL, 5 )
+
+
+		bSizer8.Add( result_btn_sizer, 0, wx.ALIGN_CENTER, 5 )
+
+		self.result_view = wx.grid.Grid( self.date_view_panel, wx.ID_ANY, wx.DefaultPosition, wx.Size( 500,540 ), 0 )
+
+		# Grid
+		self.result_view.CreateGrid( 0, 0 )
+		self.result_view.EnableEditing( False )
+		self.result_view.EnableGridLines( True )
+		self.result_view.EnableDragGridSize( False )
+		self.result_view.SetMargins( 0, 0 )
+
+		# Columns
+		self.result_view.EnableDragColMove( False )
+		self.result_view.EnableDragColSize( False )
+		self.result_view.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Rows
+		self.result_view.EnableDragRowSize( True )
+		self.result_view.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Label Appearance
+
+		# Cell Defaults
+		self.result_view.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		bSizer8.Add( self.result_view, 0, wx.ALL, 5 )
+
+
+		date_view_sizer.Add( bSizer8, 1, wx.EXPAND, 5 )
+
+
+		self.date_view_panel.SetSizer( date_view_sizer )
+		self.date_view_panel.Layout()
+		date_view_sizer.Fit( self.date_view_panel )
+		mainSizer.Add( self.date_view_panel, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+		self.main_panel.SetSizer( mainSizer )
+		self.main_panel.Layout()
+		mainSizer.Fit( self.main_panel )
+		content_layout.Add( self.main_panel, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.data_panel = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.data_panel.Hide()
@@ -218,6 +427,10 @@ class main_frame ( wx.Frame ):
 		self.main_btn.Bind( wx.EVT_BUTTON, self.show_main_panel )
 		self.data_btn.Bind( wx.EVT_BUTTON, self.show_data_panel )
 		self.log_btn.Bind( wx.EVT_BUTTON, self.show_log_panel )
+		self.confirm_draw_table_btn.Bind( wx.EVT_BUTTON, self.confirm_draw_table )
+		self.drawing_btn.Bind( wx.EVT_BUTTON, self.do_drawing )
+		self.export_result_btn.Bind( wx.EVT_BUTTON, self.export_result )
+		self.restart_btn.Bind( wx.EVT_BUTTON, self.restart_panel )
 		self.table_select_combo.Bind( wx.EVT_COMBOBOX, self.choose_table )
 		self.table_check_btn.Bind( wx.EVT_BUTTON, self.load_table_data )
 		self.import_tb_btn.Bind( wx.EVT_BUTTON, self.show_import_dialog )
@@ -243,6 +456,18 @@ class main_frame ( wx.Frame ):
 		event.Skip()
 
 	def show_log_panel( self, event ):
+		event.Skip()
+
+	def confirm_draw_table( self, event ):
+		event.Skip()
+
+	def do_drawing( self, event ):
+		event.Skip()
+
+	def export_result( self, event ):
+		event.Skip()
+
+	def restart_panel( self, event ):
 		event.Skip()
 
 	def choose_table( self, event ):
@@ -341,6 +566,80 @@ class import_dialog ( wx.Dialog ):
 		event.Skip()
 
 	def cancel_import_data( self, event ):
+		event.Skip()
+
+
+###########################################################################
+## Class error_dialog
+###########################################################################
+
+class error_dialog ( wx.Dialog ):
+
+	def __init__( self, parent ):
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 250,150 ), style = wx.DEFAULT_DIALOG_STYLE )
+
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+		bSizer9 = wx.BoxSizer( wx.VERTICAL )
+
+
+		bSizer9.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		fgSizer14 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer14.SetFlexibleDirection( wx.BOTH )
+		fgSizer14.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		fgSizer14.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.error_message = wx.StaticText( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.error_message.Wrap( -1 )
+
+		fgSizer14.Add( self.error_message, 0, wx.ALIGN_CENTER, 5 )
+
+
+		fgSizer14.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		bSizer9.Add( fgSizer14, 1, wx.ALIGN_CENTER, 5 )
+
+
+		bSizer9.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		fgSizer16 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer16.SetFlexibleDirection( wx.BOTH )
+		fgSizer16.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+
+
+		fgSizer16.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+		self.error_confirm_btn = wx.Button( self, wx.ID_ANY, u"确定", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer16.Add( self.error_confirm_btn, 0, wx.ALL, 5 )
+
+
+		fgSizer16.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		bSizer9.Add( fgSizer16, 1, wx.ALIGN_CENTER, 5 )
+
+
+		bSizer9.Add( ( 0, 0), 1, wx.EXPAND, 5 )
+
+
+		self.SetSizer( bSizer9 )
+		self.Layout()
+
+		self.Centre( wx.BOTH )
+
+		# Connect Events
+		self.error_confirm_btn.Bind( wx.EVT_BUTTON, self.err_confirm )
+
+	def __del__( self ):
+		pass
+
+
+	# Virtual event handlers, override them in your derived class
+	def err_confirm( self, event ):
 		event.Skip()
 
 

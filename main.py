@@ -1,8 +1,11 @@
-import wx
+import random
 
-import repository.sqlit as repo
+import wx
 import drawing
+import repository.sqlit as repo
+import utils.excel as ex
 from dialogs.data_import_dialog import DataImportDialog
+from dialogs.warning_dialog import ErrorWin
 
 
 # 主窗体
@@ -18,6 +21,12 @@ class MainWin(drawing.main_frame):
         self.table_changed_col = None  # changed cell col index
         self.table_changed_row = None  # changed cell row index
         self.current_grid_page = 1
+        # drawing page relevant
+        self.drawing_table = None  # 要抽签的表名
+        self.base_date_list = None
+        self.drawing_num = 0  # 抽取数量
+        # drawing result
+        self.result = []
 
     # Open data import dialog
     def show_import_dialog(self, event):
@@ -67,17 +76,15 @@ class MainWin(drawing.main_frame):
     def refresh_table_choices(self, inputValue: str = None):
         if self.table_select_combo.GetCount() > 0:
             self.table_select_combo.Clear()
+            self.drawing_table_combo.Clear()
         tables = repo.get_table_names(inputValue)
         for table in tables:
             self.table_select_combo.Append(table)
+            self.drawing_table_combo.Append(table)
 
     # load selected table data into main grid of data panel
     def load_table_data(self, event):
-        # Clear all data include header
-        if self.table_grid.GetNumberCols() > 0:
-            self.table_grid.DeleteCols(0, self.table_grid.GetNumberCols())
-        if self.table_grid.GetNumberRows() > 0:
-            self.table_grid.DeleteRows(0, self.table_grid.GetNumberRows())
+        clear_grid(self.table_grid)
         # Get current table name
         table_name = self.table_select_combo.GetStringSelection()
         if self.table_select_combo.GetStringSelection() == "":
@@ -90,41 +97,25 @@ class MainWin(drawing.main_frame):
         self.table_grid.AppendCols(len(columns))
         self.table_grid.AppendRows(repo.DEFAULT_PAGE_SIZE)
         # retrieve data from database and load data
-        self.load_new_data(table_name, columns, self.current_grid_page)
+        load_new_data(self.table_grid, table_name, columns, self.current_grid_page)
         # check page btn status
         total_pages = repo.get_total_pages(table_name)
         if total_pages > 1:
             self.grid_next_page_btn.Enable(True)
 
-    def load_new_data(self, tableName: str, columns: list, pageNum: int):
-        # retrieve data from database and load data
-        data = repo.query_page(tableName, ",".join(columns), pageNum, repo.DEFAULT_PAGE_SIZE)
-        for idx, column in enumerate(columns):
-            self.table_grid.SetColLabelValue(idx, column)
-        for row_idx, row_data in enumerate(data):
-            for col_idx, col_data in enumerate(row_data):
-                self.table_grid.SetCellValue(row_idx, col_idx, str(col_data))
-
     def grid_pre_page(self, event):
-        self.table_grid.ClearGrid()
-        if self.current_grid_page > 1:
-            table_name = self.table_select_combo.GetStringSelection()
-            columns = repo.get_column_names(table_name)
-            self.current_grid_page = self.current_grid_page - 1
-            self.load_new_data(table_name, columns, self.current_grid_page)
+        self.current_grid_page = page_pre(self.table_grid, self.current_grid_page,
+                                          self.table_select_combo.GetStringSelection())
         if self.current_grid_page == 1:
             self.grid_pre_page_btn.Enable(False)
 
     def grid_next_page(self, event):
-        self.table_grid.ClearGrid()
-        table_name = self.table_select_combo.GetStringSelection()
-        total_pages = repo.get_total_pages(table_name)
-        self.current_grid_page = self.current_grid_page + 1
+        current = page_next(self.table_grid, self.current_grid_page,
+                            self.table_select_combo.GetStringSelection())
+        total_pages = repo.get_total_pages(self.table_select_combo.GetStringSelection())
+        self.current_grid_page = current
+        self.grid_next_page_btn.Enable(current < total_pages)
         self.grid_pre_page_btn.Enable(True)
-        if self.current_grid_page >= total_pages:
-            self.grid_next_page_btn.Enable(False)
-        columns = repo.get_column_names(table_name)
-        self.load_new_data(table_name, columns, self.current_grid_page)
 
     # refresh grid
     def refresh_grid_table(self, event):
@@ -198,6 +189,107 @@ class MainWin(drawing.main_frame):
         finally:
             self.table_grid.Enable(True)
             self.update_table_btn.Enable(False)
+            self.table_changed_row = None
+            self.table_changed_col = None
+
+    # >>>>>>>>>>>>>>>>>>>>>>>以下为抽签页面操作<<<<<<<<<<<<<<<<<<<<<
+    # drawing page select table
+    def confirm_draw_table(self, event):
+        clear_grid(self.base_data_view)
+        # Get all columns
+        self.drawing_table = self.drawing_table_combo.GetStringSelection()
+        columns = repo.get_column_names(self.drawing_table)
+        total = repo.get_total(self.drawing_table)
+        # set grid header
+        self.base_data_view.AppendCols(len(columns))
+        self.base_data_view.AppendRows(total)
+        load_all_data(self.base_data_view, self.drawing_table, columns)
+        # set drawing btn status
+        self.drawing_btn.Enable(True)
+
+    # do drawing operation
+    def do_drawing(self, event):
+        if self.drawing_num_ctrl.GetValue() <= 0:
+            err_win = ErrorWin(self, "抽取数量需要大于0")
+            err_win.Show()
+            return
+        # clear result pool
+        self.result = []
+        clear_grid(self.result_view)
+        # retrieve all data
+        table_name = self.drawing_table_combo.GetStringSelection()
+        columns = repo.get_column_names(table_name)
+        base_data = repo.query_all(table_name, ",".join(columns))
+        self.result = random.sample(base_data, self.drawing_num_ctrl.GetValue())
+        # add results into view
+        self.result_view.AppendCols(len(columns))
+        self.result_view.AppendRows(self.drawing_num_ctrl.GetValue())
+        add_data_into_grid(self.result_view, columns, self.result)
+        # disable drawing button
+        self.drawing_btn.Enable(False)
+        self.export_result_btn.Enable(True)
+
+    # export result data
+    def export_result(self, event):
+        dlg = wx.DirDialog(self, message="选择文件夹", style=wx.DD_DEFAULT_STYLE)
+        if dlg.ShowModal() == wx.ID_OK:
+            columns = repo.get_column_names(self.drawing_table)
+            res_data = ex.table_list_to_dict(columns, self.result)
+            selected_path = dlg.GetPath()
+            ex.export_to_excel(f"{self.drawing_table}抽取结果", selected_path, res_data)
+            dlg.Close()
+
+    # restart the drawing panel
+    def restart_panel(self, event):
+        self.drawing_btn.Enable(False)
+        self.export_result_btn.Enable(False)
+        clear_grid(self.result_view)
+
+
+# 翻页-上一页
+def page_pre(grid, current: int, tableName: str) -> int:
+    grid.ClearGrid()
+    if current > 1:
+        columns = repo.get_column_names(tableName)
+        current = current - 1
+        load_new_data(grid, tableName, columns, current)
+    return current
+
+
+# 翻页-下一页
+def page_next(grid, current: int, tableName: str) -> int:
+    current = current + 1
+    columns = repo.get_column_names(tableName)
+    load_new_data(grid, tableName, columns, current)
+    return current
+
+
+# Clear all data include header
+def clear_grid(grid):
+    if grid.GetNumberCols() > 0:
+        grid.DeleteCols(0, grid.GetNumberCols())
+    if grid.GetNumberRows() > 0:
+        grid.DeleteRows(0, grid.GetNumberRows())
+
+
+# 加载数据到grid中
+def load_new_data(grid, tableName: str, columns: list, pageNum: int):
+    # retrieve data from database and load data
+    data = repo.query_page(tableName, ",".join(columns), pageNum, repo.DEFAULT_PAGE_SIZE)
+    add_data_into_grid(grid, columns, data)
+
+
+def load_all_data(grid, tableName: str, columns: list):
+    data = repo.query_all(tableName, ",".join(columns))
+    add_data_into_grid(grid, columns, data)
+
+
+def add_data_into_grid(grid, columns: list, data: list):
+    for idx, column in enumerate(columns):
+        grid.SetColLabelValue(idx, column)
+    for row_idx, row_data in enumerate(data):
+        for col_idx, col_data in enumerate(row_data):
+            grid.SetCellValue(row_idx, col_idx, str(col_data))
 
 
 # 以下是wxPython的固定用法

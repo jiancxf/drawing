@@ -19,3 +19,24 @@ def resolve_excel(file_path: str):
         except Exception as e:
             raise e
 
+
+def export_to_excel(title: str, file_path: str, data: dict):
+    df = pd.DataFrame(data)
+    writer = pd.ExcelWriter(f"{file_path}\\{title}.xlsx")
+    # 将DataFrame写入Excel中
+    df.to_excel(writer, sheet_name='Sheet1', index=False)
+    writer.close()
+
+
+def table_list_to_dict(columns: list, dataList: list) -> dict:
+    result = dict()
+    key_dict = dict()
+    for idx, column in enumerate(columns):
+        key_dict[idx] = column
+        result[column] = []
+    for data in dataList:
+        for idx, value in enumerate(data):
+            result[key_dict[idx]].append(value)
+    return result
+
+

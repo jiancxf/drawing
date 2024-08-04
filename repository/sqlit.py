@@ -86,6 +86,17 @@ def query_page(tableName: str, columns: str, pageNum: int, pageSize: int):
     return results
 
 
+# query all data from a table
+def query_all(tableName: str, columns: str):
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    sql = f"SELECT {columns} FROM {tableName}"
+    cur.execute(sql)
+    results = cur.fetchall()
+    conn.close()
+    return results
+
+
 # get column names from certain table
 def get_column_names(tableName: str) -> list:
     column_names = []
@@ -119,9 +130,13 @@ def update_data(tableName: str, index_column: str, index_value, column: str, val
 
 
 def get_total_pages(tableName: str) -> int:
+    return int(get_total(tableName) / DEFAULT_PAGE_SIZE)
+
+
+def get_total(tableName: str) -> int:
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     cur.execute(f"SELECT COUNT(*) FROM {tableName}")
-    pages = cur.fetchone()[0]
+    total = cur.fetchone()[0]
     conn.close()
-    return pages / DEFAULT_PAGE_SIZE
+    return total
