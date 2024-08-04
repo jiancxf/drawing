@@ -1,10 +1,10 @@
-import drawing
+import drawlots
 import utils.excel as ex
 from events.event import TableChangeEvent
 
 
 # 数据导入窗口
-class DataImportDialog(drawing.import_dialog):
+class DataImportDialog(drawlots.import_dialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
