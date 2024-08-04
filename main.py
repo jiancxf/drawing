@@ -1,7 +1,7 @@
 import random
 
 import wx
-import drawing
+import drawlots
 import repository.sqlit as repo
 import utils.excel as ex
 from dialogs.data_import_dialog import DataImportDialog
@@ -9,7 +9,7 @@ from dialogs.warning_dialog import ErrorWin
 
 
 # 主窗体
-class MainWin(drawing.main_frame):
+class MainWin(drawlots.main_frame):
     def __init__(self, parent=None):
         super().__init__(parent)
 

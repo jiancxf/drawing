@@ -180,7 +180,7 @@ class main_frame ( wx.Frame ):
 
 		self.drawing_btn = wx.BitmapButton( self.date_view_panel, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
-		self.drawing_btn.SetBitmap( wx.Bitmap( u"static/arrow.png", wx.BITMAP_TYPE_ANY ) )
+		self.drawing_btn.SetBitmap( wx.Bitmap( u"../drawing/static/arrow.png", wx.BITMAP_TYPE_ANY ) )
 		self.drawing_btn.Enable( False )
 
 		bSizer7.Add( self.drawing_btn, 0, wx.ALL, 5 )
