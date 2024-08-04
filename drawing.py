@@ -395,7 +395,7 @@ class main_frame ( wx.Frame ):
 		self.pagation_panel.SetSizer( pageButtonSizer )
 		self.pagation_panel.Layout()
 		pageButtonSizer.Fit( self.pagation_panel )
-		table_layout.Add( self.pagation_panel, 1, wx.EXPAND |wx.ALL, 5 )
+		table_layout.Add( self.pagation_panel, 0, wx.EXPAND |wx.ALL, 5 )
 
 
 		table_layout.Add( ( 0, 0), 1, wx.EXPAND, 5 )
